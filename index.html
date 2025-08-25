@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Ganpati Inn - A New Era of Luxury Awaits</title>
+    
+    <!-- FONT IMPORTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           1. CSS RESET & BASIC SETUP
+        ==========================================================================
+        */
+        :root {
+            --gold-color: #D4AF37;
+            --text-color: #E0E0E0;
+            --dark-bg: #0a0a0a;
+            --font-primary: 'Playfair Display', serif;
+            --font-secondary: 'Roboto', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--dark-bg);
+            font-family: var(--font-secondary);
+            cursor: none; /* Hide the default cursor */
+        }
+
+        /* ==========================================================================
+           2. CUSTOM CURSOR STYLES
+        ==========================================================================
+        */
+        #custom-cursor {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--gold-color);
+            border-radius: 50%;
+            pointer-events: none; /* Allows clicking through the cursor */
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease, background-color 0.2s ease, border-color 0.2s ease;
+            z-index: 9999;
+            backdrop-filter: invert(1); /* Inverts color behind it for visibility */
+        }
+
+        #custom-cursor.hover {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(212, 175, 55, 0.2);
+            border-color: transparent;
+        }
+
+        /* ==========================================================================
+           3. LOADER STYLES
+        ==========================================================================
+        */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--dark-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1.5s ease-out, visibility 1.5s ease-out;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--gold-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ==========================================================================
+           4. CANVAS & CONTENT WRAPPER
+        ==========================================================================
+        */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            outline: none;
+            z-index: 1;
+        }
+
+        .content-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 2;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 2s ease-in 1s; /* Fade in after loader disappears */
+        }
+
+        /* ==========================================================================
+           5. TYPOGRAPHY & TEXT STYLES
+        ==========================================================================
+        */
+        .main-title {
+            font-family: var(--font-primary);
+            font-size: 5.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            margin: 0;
+            opacity: 0; /* Start hidden for animation */
+            animation: fadeInDown 2s ease-out 1s forwards;
+        }
+
+        .typewriter-container {
+            font-family: var(--font-secondary);
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--text-color);
+            margin-top: 15px;
+            margin-bottom: 35px;
+            height: 1.5rem; /* Reserve space to prevent layout shift */
+            opacity: 0; /* Start hidden for animation */
+            animation: fadeInUp 2s ease-out 1s forwards;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.2rem; /* Match font size */
+            background-color: var(--gold-color);
+            animation: blink 0.8s infinite;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .divider {
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-color), transparent);
+            border: none;
+            margin-bottom: 40px;
+            opacity: 0; /* Start hidden for animation */
+            animation: fadeInUp 2s ease-out 1s forwards;
+        }
+
+        /* ==========================================================================
+           6. FOOTER & CONTACT INFORMATION (IMPROVED)
+        ==========================================================================
+        */
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            padding: 0 5%;
+            opacity: 0; /* Start hidden for animation */
+            animation: fadeInUp 2s ease-out 1s forwards;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between; /* Creates the three-part layout */
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            padding-top: 20px;
+        }
+        
+        .footer-item {
+            flex: 1; /* Each item takes up an equal third of the space */
+            text-align: center;
+        }
+
+        /* Specific alignment for the first and last items */
+        .footer-item:first-child {
+            text-align: left;
+        }
+        .footer-item:last-child {
+            text-align: right;
+        }
+
+        .footer-content a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 300; /* Lighter font weight */
+            letter-spacing: 1.5px; /* Wider spacing */
+            transition: color 0.4s ease, transform 0.4s ease;
+        }
+
+        .footer-content a:hover {
+            color: var(--gold-color);
+            transform: translateY(-2px);
+        }
+
+        .developer-credit {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px; /* Space between URL and credit */
+            letter-spacing: 0.5px;
+        }
+
+        .developer-credit a {
+            font-size: inherit; /* Inherit size from parent */
+            color: rgba(255, 255, 255, 0.6); /* Slightly more prominent */
+            font-weight: 400;
+            letter-spacing: inherit;
+        }
+        
+        /* ==========================================================================
+           7. ANIMATIONS
+        ==========================================================================
+        */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ==========================================================================
+           8. RESPONSIVE DESIGN
+        ==========================================================================
+        */
+        @media (max-width: 1024px) {
+            .main-title {
+                font-size: 4rem;
+            }
+            .typewriter-container {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 3rem;
+            }
+            .typewriter-container {
+                font-size: 0.9rem;
+                letter-spacing: 4px;
+            }
+            .footer-content {
+                flex-direction: column; /* Stack items vertically */
+                justify-content: center; /* Center them */
+                border-top: none;
+                padding-top: 0;
+                gap: 20px; /* Add space between stacked items */
+            }
+            .footer-item,
+            .footer-item:first-child,
+            .footer-item:last-child {
+                text-align: center; /* Center all text on mobile */
+                width: 100%;
+                flex: none; /* Reset flex property for mobile */
+            }
+            .footer {
+                bottom: 20px;
+            }
+            /* Hide custom cursor on touch devices for better usability */
+            #custom-cursor {
+                display: none;
+            }
+            html, body {
+                cursor: auto; /* Show default cursor on mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+            .typewriter-container {
+                font-size: 0.8rem;
+                letter-spacing: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADER ELEMENT -->
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- CUSTOM CURSOR -->
+    <div id="custom-cursor"></div>
+
+    <!-- 3D BACKGROUND CANVAS -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- FOREGROUND CONTENT -->
+    <div class="content-wrapper">
+        <h1 class="main-title">Hotel Ganpati Inn</h1>
+        <div class="typewriter-container">
+            <span id="typewriter-text"></span><span class="cursor"></span>
+        </div>
+        <hr class="divider">
+        
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-item">
+                    <a href="mailto:Hotelganpatiinn37@gmail.com">Hotelganpatiinn37@gmail.com</a>
+                </div>
+                <div class="footer-item">
+                    <a href="http://www.hotelganpatiinn.com" target="_blank" rel="noopener noreferrer">www.hotelganpatiinn.com</a>
+                    <p class="developer-credit">Proudly developed in India by <a href="http://stairio.com" target="_blank" rel="noopener noreferrer">Stairio.com</a></p>
+                </div>
+                <div class="footer-item">
+                    <a href="tel:8540944326">8540944326</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- JAVASCRIPT LIBRARIES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
+
+    <script type="module">
+        /* ==========================================================================
+           I. INITIALIZATION & SCENE SETUP
+        ==========================================================================
+        */
+
+        // --- DOM Elements ---
+        const canvas = document.getElementById('webgl-canvas');
+        const loader = document.getElementById('loader');
+        const content = document.querySelector('.content-wrapper');
+        const customCursor = document.getElementById('custom-cursor');
+
+        // --- Core Three.js Components ---
+        let scene, camera, renderer;
+
+        // --- Particle System Components ---
+        let particles, geometry, material;
+        
+        // --- Interactivity & Animation ---
+        let mouse = new THREE.Vector2(-10, -10); // Initialize off-screen
+        let clock = new THREE.Clock();
+        const noise = new SimplexNoise();
+
+        // --- Configuration ---
+        const PARTICLE_COUNT = 50000;
+        const PARTICLE_SIZE = 1.5;
+        const MOUSE_REPULSION_RADIUS = 1.0;
+        const MOUSE_REPULSION_STRENGTH = 0.8;
+        const PARTICLE_SPEED = 0.05;
+
+
+        /**
+         * Main initialization function.
+         * Sets up the entire 3D scene, particles, and event listeners.
+         */
+        function init() {
+            // 1. Renderer Setup
+            renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x0a0a0a, 1);
+
+            // 2. Scene Setup
+            scene = new THREE.Scene();
+            
+            // 3. Camera Setup
+            const fov = 75;
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const far = 1000;
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.z = 5;
+
+            // 4. Create Particle System
+            createParticles();
+
+            // 5. Setup Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('mousemove', onMouseMove);
+            setupCursorHoverEffects();
+
+            // 6. Start Animation Loop
+            animate();
+            
+            // 7. Hide Loader and Show Content
+            window.setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+                content.style.opacity = '1';
+                // Start typewriter after content is visible
+                typewriterEffect(); 
+            }, 500);
+        }
+        
+        /* ==========================================================================
+           II. TYPEWRITER & CURSOR EFFECTS
+        ==========================================================================
+        */
+
+        /**
+         * Creates a continuous typewriter and deleting effect for a list of texts.
+         */
+        function typewriterEffect() {
+            const textElement = document.getElementById('typewriter-text');
+            const texts = ["COMING SOON...", "A NEW ERA OF LUXURY AWAITS"];
+            let textIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            function type() {
+                const currentText = texts[textIndex];
+                let typeSpeed = isDeleting ? 75 : 150;
+
+                // Typing or Deleting logic
+                if (isDeleting) {
+                    charIndex--;
+                } else {
+                    charIndex++;
+                }
+                
+                textElement.textContent = currentText.substring(0, charIndex);
+
+                // Check if word is complete
+                if (!isDeleting && charIndex === currentText.length) {
+                    typeSpeed = 2000; // Pause at end of word
+                    isDeleting = true;
+                } 
+                // Check if word is deleted
+                else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    textIndex = (textIndex + 1) % texts.length;
+                    typeSpeed = 500; // Pause before typing new word
+                }
+
+                setTimeout(type, typeSpeed);
+            }
+            type(); // Start the effect
+        }
+
+        /**
+         * Adds hover listeners to links to change the custom cursor's appearance.
+         */
+        function setupCursorHoverEffects() {
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('mouseenter', () => customCursor.classList.add('hover'));
+                link.addEventListener('mouseleave', () => customCursor.classList.remove('hover'));
+            });
+        }
+
+
+        /* ==========================================================================
+           III. PARTICLE SYSTEM CREATION
+        ==========================================================================
+        */
+
+        /**
+         * Creates the particle geometry and material.
+         */
+        function createParticles() {
+            // 1. Geometry Setup
+            geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(PARTICLE_COUNT * 3);
+            const randoms = new Float32Array(PARTICLE_COUNT);
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 20; // x
+                positions[i3 + 1] = (Math.random() - 0.5) * 20; // y
+                positions[i3 + 2] = (Math.random() - 0.5) * 20; // z
+                randoms[i] = Math.random();
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('aRandom', new THREE.BufferAttribute(randoms, 1));
+
+            // 2. Material Setup (Shaders)
+            material = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0.0 },
+                    uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+                    uSize: { value: PARTICLE_SIZE },
+                    uMouse: { value: new THREE.Vector3() },
+                    uColor: { value: new THREE.Color(0xD4AF37) },
+                    uRepulsionRadius: { value: MOUSE_REPULSION_RADIUS },
+                    uRepulsionStrength: { value: MOUSE_REPULSION_STRENGTH }
+                },
+                vertexShader: `
+                    uniform float uTime;
+                    uniform float uPixelRatio;
+                    uniform float uSize;
+                    uniform vec3 uMouse;
+                    uniform float uRepulsionRadius;
+                    uniform float uRepulsionStrength;
+                    attribute float aRandom;
+                    varying float vDistanceToMouse;
+
+                    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                    vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                    vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+                    vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+                    float snoise(vec3 v) {
+                        const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+                        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+                        vec3 i = floor(v + dot(v, C.yyy));
+                        vec3 x0 = v - i + dot(i, C.xxx);
+                        vec3 g = step(x0.yzx, x0.xyz);
+                        vec3 l = 1.0 - g;
+                        vec3 i1 = min(g.xyz, l.zxy);
+                        vec3 i2 = max(g.xyz, l.zxy);
+                        vec3 x1 = x0 - i1 + C.xxx;
+                        vec3 x2 = x0 - i2 + C.yyy;
+                        vec3 x3 = x0 - D.yyy;
+                        i = mod289(i);
+                        vec4 p = permute(permute(permute(
+                            i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                            + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                            + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+                        float n_ = 0.142857142857;
+                        vec3 ns = n_ * D.wyz - D.xzx;
+                        vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                        vec4 x_ = floor(j * ns.z);
+                        vec4 y_ = floor(j - 7.0 * x_);
+                        vec4 x = x_ * ns.x + ns.yyyy;
+                        vec4 y = y_ * ns.x + ns.yyyy;
+                        vec4 h = 1.0 - abs(x) - abs(y);
+                        vec4 b0 = vec4(x.xy, y.xy);
+                        vec4 b1 = vec4(x.zw, y.zw);
+                        vec4 s0 = floor(b0) * 2.0 + 1.0;
+                        vec4 s1 = floor(b1) * 2.0 + 1.0;
+                        vec4 sh = -step(h, vec4(0.0));
+                        vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+                        vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+                        vec3 p0 = vec3(a0.xy, h.x);
+                        vec3 p1 = vec3(a0.zw, h.y);
+                        vec3 p2 = vec3(a1.xy, h.z);
+                        vec3 p3 = vec3(a1.zw, h.w);
+                        vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+                        p0 *= norm.x;
+                        p1 *= norm.y;
+                        p2 *= norm.z;
+                        p3 *= norm.w;
+                        vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+                        m = m * m;
+                        return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+                    }
+
+                    void main() {
+                        float time = uTime * ${PARTICLE_SPEED.toFixed(2)};
+                        vec3 pos = position;
+                        
+                        pos.x += snoise(vec3(pos.y * 0.2 + time, pos.z * 0.2, aRandom * 10.0)) * 0.5;
+                        pos.y += snoise(vec3(pos.x * 0.2, pos.z * 0.2 + time, aRandom * 10.0)) * 0.5;
+                        pos.z += snoise(vec3(pos.x * 0.2, pos.y * 0.2, aRandom * 10.0 + time)) * 0.5;
+
+                        float dist = distance(pos, uMouse);
+                        vDistanceToMouse = dist;
+
+                        if (dist < uRepulsionRadius) {
+                            vec3 direction = normalize(pos - uMouse);
+                            float force = (uRepulsionRadius - dist) / uRepulsionRadius;
+                            pos += direction * force * uRepulsionStrength;
+                        }
+
+                        vec4 modelPosition = modelMatrix * vec4(pos, 1.0);
+                        vec4 viewPosition = viewMatrix * modelPosition;
+                        vec4 projectedPosition = projectionMatrix * viewPosition;
+
+                        gl_Position = projectedPosition;
+                        gl_PointSize = uSize * uPixelRatio * (1.0 / -viewPosition.z);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 uColor;
+                    varying float vDistanceToMouse;
+
+                    void main() {
+                        float distanceToCenter = distance(gl_PointCoord, vec2(0.5));
+                        float strength = 1.0 - (distanceToCenter * 2.0);
+                        float mouseFade = smoothstep(0.0, 0.2, vDistanceToMouse);
+                        gl_FragColor = vec4(uColor, strength * mouseFade);
+                    }
+                `,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            // 3. Create Points Object and Add to Scene
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+
+        /* ==========================================================================
+           IV. ANIMATION LOOP & EVENT HANDLERS
+        ==========================================================================
+        */
+
+        /**
+         * The main animation loop, called every frame.
+         */
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Update shader uniforms
+            material.uniforms.uTime.value = elapsedTime;
+
+            // Add the subtle camera drift
+            camera.position.z -= 0.002;
+
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+
+        /**
+         * Handles window resize events.
+         */
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+        }
+
+        /**
+         * Handles mouse move events to update the cursor position for interaction.
+         */
+        function onMouseMove(event) {
+            // Update custom cursor position
+            customCursor.style.left = event.clientX + 'px';
+            customCursor.style.top = event.clientY + 'px';
+
+            // Normalize mouse coordinates for WebGL interaction
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+            vector.unproject(camera);
+            const dir = vector.sub(camera.position).normalize();
+            const distance = -camera.position.z / dir.z;
+            const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+            material.uniforms.uMouse.value.set(pos.x, pos.y, pos.z);
+        }
+
+        // --- Start the application ---
+        init();
+
+    </script>
+</body>
+</html>
